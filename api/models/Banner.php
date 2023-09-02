@@ -42,12 +42,19 @@ class Banner
         }
     }
 
-    public function delete()
+    public function delete($id)
     {
         $query = "DELETE FROM banners WHERE id = :id";
         $statement = $this->pdo->prepare($query);
-        $statement->bindParam(':id', $this->id);
-        $statement->execute();
+        $statement->bindParam(':id', $id);
+        
+        if ($statement->execute()) {
+            // Deletion was successful
+            return true;
+        } else {
+            // Deletion failed
+            return false;
+        }
     }
 
     public static function getById($bannerId, $pdo)
