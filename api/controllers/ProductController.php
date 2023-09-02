@@ -100,15 +100,7 @@ class ProductController
             echo json_encode($response);
             return;
         }
-        // if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])) {
-        //     // Handle invalid name (name is missing or empty)
-        //     $response = array(
-        //         'status' => 'error',
-        //         'message' => 'Invalid Category Id'
-        //     );
-        //     echo json_encode($response);
-        //     return;
-        // }
+   
         if (!isset($_POST['id']) || empty($_POST['id'])) {
             // Handle invalid name (name is missing or empty)
             $response = array(
