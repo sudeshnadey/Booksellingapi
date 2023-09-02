@@ -154,3 +154,4 @@ class BannerController
             echo json_encode(['error' => 'An error occurred while fetching banners.']);
         }
 }
+}
