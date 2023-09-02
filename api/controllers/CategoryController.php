@@ -1,13 +1,20 @@
 <?php
-require './models/Banner.php';
-require_once './config/db-connect.php';
+require '../models/Category.php';
+require_once '../config/db-connect.php';
 
-class BannerController
+class CategoryController
 {
 
-    public function addBanner()
-    {
 
+    function test_input($data)
+    {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
+    public function addCategory()
+    {
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Validate name
@@ -42,27 +49,29 @@ class BannerController
             $fileError = $file['error'];
 
 
-            $image_path = 'images/' . $fileName;
+            $image_path = '../images/' . $fileName;
 
             move_uploaded_file($fileTmpPath, $image_path);
 
-            $banner = new Banner($name, $fileName, $description);
-            $banner->save();
+            $category = new Category($name, $fileName, $description);
+            $category->save();
             http_response_code(200);
-            echo json_encode(array('status' => 'success', 'data' => $banner));
+            echo json_encode(array('status' => 'success', 'data' => $category));
         } else {
             http_response_code(400);
             echo json_encode(array('status' => 'failed', 'message' => 'please enter data to store'));
         }
+    
     }
+    
 
-    public function editBanner()
+    public function editCategory()
     {
         $pdo = createDatabaseConnection();
 
         $name = $_POST['name'];
         $description = $_POST['description'];
-        $bannerId = $_POST['bannerId'];
+        $categoryId = $_POST['categoryId'];
 
         // Retrieve the uploaded file
         $file = $_FILES['image'];
@@ -78,35 +87,35 @@ class BannerController
         $fileError = $file['error'];
 
 
-        $image_path = 'images/' . $fileName;
+        $image_path = '../images/' . $fileName;
 
         move_uploaded_file($fileTmpPath, $image_path);
-        $banner = Banner::getById($bannerId, $pdo);
+        $category = Category::getById($categoryId, $pdo);
 
-        // $banner = new Banner($name, $fileName, $description);
-        if ($banner) {
-            $banner->name = $name;
-            $banner->image = $fileName;
-            $banner->description = $description;
-            $banner->save();
+        // $category = new category($name, $fileName, $description);
+        if ($category) {
+            $category->name = $name;
+            $category->image = $fileName;
+            $category->description = $description;
+            $category->save();
 
             http_response_code(200);
-            echo json_encode(array('status' => 'success', 'data' => $banner));
+            echo json_encode(array('status' => 'success', 'data' => $category));
         } else {
             http_response_code(404);
             echo json_encode(array('status' => 'failed', 'data' => 'resource not found'));
         }
     }
 
-    public function deleteBanner()
+    public function deleteCategory()
     {
         $pdo = createDatabaseConnection();
 
-        $bannerId = $_POST['bannerId'];
+        $categoryId = $_POST['categoryId'];
 
-        $banner = Banner::getById($bannerId, $pdo);
-        // echo json_encode($bannerId);
-        if ($banner && $banner->delete($bannerId)) {
+        $category = Category::getById($categoryId, $pdo);
+        // echo json_encode($categoryId);
+        if ($category && $category->delete($categoryId)) {
 
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => 'successfully deleted'));
@@ -116,15 +125,15 @@ class BannerController
         }
     }
 
-    public function showBanners()
+    public function showCategorys()
     {
         try {
             $pdo = createDatabaseConnection();
 
-            $banners = Banner::getAll($pdo);
+            $categorys = Category::getAll($pdo);
 
             // Convert the banner objects to JSON format
-            $jsonData = json_encode($banners);
+            $jsonData = json_encode($categorys);
 
             http_response_code(200);
             header('Content-Type: application/json');
@@ -133,7 +142,7 @@ class BannerController
             echo $jsonData;
         } catch (PDOException $e) {
             // Example: Logging the error
-            error_log('Error fetching banners: ' . $e->getMessage());
+            error_log('Error fetching categories: ' . $e->getMessage());
 
             // Return an error response
             http_response_code(500); // Internal Server Error
@@ -141,15 +150,15 @@ class BannerController
         }
     }
 
-    public function showBannersToUsers()
+    public function showCategorysToUsers()
     {
         try {
             $pdo = createDatabaseConnection();
 
-            $banners = Banner::getAll($pdo);
+            $categorys = Category::getAll($pdo);
 
             // Convert the banner objects to JSON format
-            $jsonData = json_encode($banners);
+            $jsonData = json_encode($categorys);
 
             http_response_code(200);
             header('Content-Type: application/json');
@@ -158,11 +167,11 @@ class BannerController
             echo $jsonData;
         } catch (PDOException $e) {
             // Example: Logging the error
-            error_log('Error fetching banners: ' . $e->getMessage());
+            error_log('Error fetching categories: ' . $e->getMessage());
 
             // Return an error response
             http_response_code(500); // Internal Server Error
-            echo json_encode(['error' => 'An error occurred while fetching banners.']);
+            echo json_encode(['error' => 'An error occurred while fetching categories.']);
         }
     }
 }

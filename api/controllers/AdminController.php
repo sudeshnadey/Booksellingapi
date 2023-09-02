@@ -7,7 +7,7 @@ use Firebase\JWT\JWT;
 
 class AdminController
 {
-    private $secretKey = 'your_secret_key'; // Replace with your own secret key
+    private $secretKey = 'S35001_A4M1n'; 
 
     public function login()
     {
@@ -28,19 +28,19 @@ class AdminController
                     // Create and sign the JWT token
                     $tokenId = base64_encode(random_bytes(32));
                     $issuedAt = time();
-                    $expirationTime = $issuedAt + 3600; // Token expires in 1 hour
+                    // $expirationTime = $issuedAt + 3600; // Token expires in 1 hour
 
-                    $payload = [
-                        'iat' => $issuedAt,
-                        'exp' => $expirationTime,
-                        'jti' => $tokenId,
-                        'data' => [
-                            'adminId' => $admin->getId(),
-                            'username' => $admin->getUsername()
-                        ]
-                    ];
+                    // $payload = [
+                    //     'iat' => $issuedAt,
+                    //     // 'exp' => $expirationTime,
+                    //     'jti' => $tokenId,
+                    //     'data' => [
+                    //         'adminId' => $admin->getId(),
+                    //         'username' => $admin->getUsername()
+                    //     ]
+                    // ];
 
-                    $jwt = JWT::encode($payload, $this->secretKey, 'HS256');
+                    $jwt = JWT::encode(['user'=>'admin','username'=>$admin->getUsername()], $this->secretKey, 'HS256');
 
                     // Return the JWT token
                     echo json_encode(['token' => $jwt]);
