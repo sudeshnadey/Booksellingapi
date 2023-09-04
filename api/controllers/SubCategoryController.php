@@ -1,6 +1,6 @@
 <?php
-require '../models/SubCategory.php';
-require_once '../config/db-connect.php';
+require './models/SubCategory.php';
+require_once './config/db-connect.php';
 
 class SubCategoryController
 {
@@ -24,6 +24,8 @@ class SubCategoryController
                     'status' => 'error',
                     'message' => 'Invalid name'
                 );
+                http_response_code(400);
+
                 echo json_encode($response);
                 return;
             }
@@ -33,6 +35,8 @@ class SubCategoryController
                     'status' => 'error',
                     'message' => 'Invalid Category Id'
                 );
+                http_response_code(400);
+
                 echo json_encode($response);
                 return;
             }
@@ -46,6 +50,8 @@ class SubCategoryController
                     'status' => 'error',
                     'message' => 'Invalid file upload'
                 );
+                http_response_code(400);
+
                 echo json_encode($response);
                 return;
             }
@@ -59,7 +65,7 @@ class SubCategoryController
             $fileError = $file['error'];
 
 
-            $image_path = '../images/' . $fileName;
+            $image_path = 'images/' . $fileName;
 
             move_uploaded_file($fileTmpPath, $image_path);
 
@@ -85,6 +91,8 @@ class SubCategoryController
                 'status' => 'error',
                 'message' => 'Invalid name'
             );
+            http_response_code(400);
+
             echo json_encode($response);
             return;
         }
@@ -94,6 +102,8 @@ class SubCategoryController
                 'status' => 'error',
                 'message' => 'Invalid Category Id'
             );
+            http_response_code(400);
+
             echo json_encode($response);
             return;
         }
@@ -103,6 +113,7 @@ class SubCategoryController
                 'status' => 'error',
                 'message' => 'Invalid Category Id'
             );
+            http_response_code(400);
             echo json_encode($response);
             return;
         }
@@ -113,29 +124,36 @@ class SubCategoryController
         $categoryId = $_POST['categoryId'];
 
         // Retrieve the uploaded file
-        $file = $_FILES['image'];
+        $file = $_FILES['image']??null;
         // if ($requestData) {
         if (!isset($name)) {
-            echo 'Name Field required';
+            http_response_code(400);
+            echo json_encode(array('status' => 'failed', 'data' => 'Name Field required'));
             return;
         }
 
-        $fileName = $file['name'];
-        $fileTmpPath = $file['tmp_name'];
-        $fileSize = $file['size'];
-        $fileError = $file['error'];
-
-
-        $image_path = '../images/' . $fileName;
-
-        move_uploaded_file($fileTmpPath, $image_path);
         $category = SubCategory::getById($id, $pdo);
+
+        if($file !== null){
+            $fileName = $file['name'];
+            $fileTmpPath = $file['tmp_name'];
+            $fileSize = $file['size'];
+            $fileError = $file['error'];
+            $image_path = 'images/' . $fileName;
+    
+            move_uploaded_file($fileTmpPath, $image_path);
+            $category->image = $fileName;
+
+        }else{
+            $category->image = null;
+ 
+        }
+    
 
         // $category = new category($name, $fileName, $description);
         if ($category) {
             $category->id = $id;
             $category->name = $name;
-            $category->image = $fileName;
             $category->categoryId = $categoryId;
             $category->description = $description;
             $category->save();
@@ -143,7 +161,7 @@ class SubCategoryController
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => $category));
         } else {
-            http_response_code(404);
+            http_response_code(400);
             echo json_encode(array('status' => 'failed', 'data' => 'resource not found'));
         }
     }
@@ -174,20 +192,17 @@ class SubCategoryController
             $categorys = SubCategory::getAll($pdo);
 
             // Convert the banner objects to JSON format
+            http_response_code(200);
+
             $jsonData = json_encode($categorys);
 
-            http_response_code(200);
-            header('Content-Type: application/json');
 
             // Output the JSON data
             echo $jsonData;
         } catch (PDOException $e) {
-            // Example: Logging the error
-            error_log('Error fetching categories: ' . $e->getMessage());
-
-            // Return an error response
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['error' => 'An error occurred while fetching banners.']);
+          
+            http_response_code(400); // Internal Server Error
+            echo json_encode(['error' => 'An error occurred while fetching subcategories.']);
         }
     }
 
@@ -207,12 +222,9 @@ class SubCategoryController
             // Output the JSON data
             echo $jsonData;
         } catch (PDOException $e) {
-            // Example: Logging the error
-            error_log('Error fetching categories: ' . $e->getMessage());
-
-            // Return an error response
-            http_response_code(500); // Internal Server Error
-            echo json_encode(['error' => 'An error occurred while fetching categories.']);
+   
+            http_response_code(400); // Internal Server Error
+            echo json_encode(['error' => 'An error occurred while fetching subcategories.']);
         }
     }
 }

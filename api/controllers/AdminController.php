@@ -40,7 +40,7 @@ class AdminController
                     //     ]
                     // ];
 
-                    $jwt = JWT::encode(['user'=>'admin','username'=>$admin->getUsername(),'exp' => $expirationTime], $this->secretKey, 'HS256','ewewe');
+                    $jwt = JWT::encode(['user'=>'admin','username'=>$admin->getUsername()], $this->secretKey, 'HS256');
 
                     // Return the JWT token
                     echo json_encode(['token' => $jwt,'user'=>$admin]);

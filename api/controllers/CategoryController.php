@@ -1,6 +1,6 @@
 <?php
-require '../models/Category.php';
-require_once '../config/db-connect.php';
+require './models/Category.php';
+require_once './config/db-connect.php';
 
 class CategoryController
 {
@@ -49,7 +49,7 @@ class CategoryController
             $fileError = $file['error'];
 
 
-            $image_path = '../images/' . $fileName;
+            $image_path = 'images/' . $fileName;
 
             move_uploaded_file($fileTmpPath, $image_path);
 
@@ -61,9 +61,8 @@ class CategoryController
             http_response_code(400);
             echo json_encode(array('status' => 'failed', 'message' => 'please enter data to store'));
         }
-    
     }
-    
+
 
     public function editCategory()
     {
@@ -74,29 +73,37 @@ class CategoryController
         $categoryId = $_POST['categoryId'];
 
         // Retrieve the uploaded file
-        $file = $_FILES['image'];
+        $file = $_FILES['image'] ?? null;
         // if ($requestData) {
         if (!isset($name)) {
             echo 'Name Field required';
             return;
         }
 
-        $fileName = $file['name'];
-        $fileTmpPath = $file['tmp_name'];
-        $fileSize = $file['size'];
-        $fileError = $file['error'];
-
-
-        $image_path = '../images/' . $fileName;
-
-        move_uploaded_file($fileTmpPath, $image_path);
         $category = Category::getById($categoryId, $pdo);
+
+        if ($file != null) {
+            $fileName = $file['name'];
+            $fileTmpPath = $file['tmp_name'];
+            $fileSize = $file['size'];
+            $fileError = $file['error'];
+    
+    
+            $image_path = 'images/' . $fileName;
+    
+            move_uploaded_file($fileTmpPath, $image_path);
+            $category->image = $fileName;
+
+        }else{
+            $category->image = null;
+
+        }
+     
 
         // $category = new category($name, $fileName, $description);
         if ($category) {
             $category->id = $categoryId;
             $category->name = $name;
-            $category->image = $fileName;
             $category->description = $description;
             $category->save();
 
@@ -112,7 +119,7 @@ class CategoryController
     {
         $pdo = createDatabaseConnection();
 
-        $categoryId = $_POST['categoryId'] ??null;
+        $categoryId = $_POST['categoryId'] ?? null;
 
         $category = Category::getById($categoryId, $pdo);
         // echo json_encode($categoryId);

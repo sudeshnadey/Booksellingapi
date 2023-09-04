@@ -1,6 +1,6 @@
 <?php
-require '../models/Product.php';
-require_once '../config/db-connect.php';
+require './models/Product.php';
+require_once './config/db-connect.php';
 
 class ProductController
 {
@@ -72,7 +72,7 @@ class ProductController
             $fileError = $file['error'];
 
 
-            $image_path = '../images/' . $fileName;
+            $image_path = 'images/' . $fileName;
 
             move_uploaded_file($fileTmpPath, $image_path);
 
@@ -121,30 +121,37 @@ class ProductController
         $quantity = $_POST['quantity'];
         $discount = $_POST['discount'];
 
-        // Retrieve the uploaded file
-        $file = $_FILES['image'];
-        // if ($requestData) {
+        $file = $_FILES['image']??null;
+
         if (!isset($name)) {
-            echo 'Name Field required';
+            http_response_code(404);
+            echo json_encode(array('status' => 'failed', 'data' => 'Name Field required'));
             return;
         }
 
-        $fileName = $file['name'];
-        $fileTmpPath = $file['tmp_name'];
-        $fileSize = $file['size'];
-        $fileError = $file['error'];
-
-
-        $image_path = '../images/' . $fileName;
-
-        move_uploaded_file($fileTmpPath, $image_path);
+  
         $product = Product::getById($id, $pdo);
 
+        if($file !== null){
+            $fileName = $file['name'];
+            $fileTmpPath = $file['tmp_name'];
+            $fileSize = $file['size'];
+            $fileError = $file['error'];
+    
+    
+            $image_path = 'images/' . $fileName;
+    
+            move_uploaded_file($fileTmpPath, $image_path);
+            $product->image = $fileName;
+
+        }else{
+            $product->image = null;
+
+        }
         // $category = new category($name, $fileName, $description);
         if ($product) {
             $product->id = $id;
             $product->name = $name;
-            $product->image = $fileName;
             $product->categoryId = $categoryId;
             $product->subCategoryId = $subCategoryId;
             $product->mrp = $mrp;

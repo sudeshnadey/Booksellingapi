@@ -60,41 +60,54 @@ class BannerController
     {
         $pdo = createDatabaseConnection();
 
-        $name = $_POST['name'];
         $description = $_POST['description'];
-        $bannerId = $_POST['bannerId'];
 
         // Retrieve the uploaded file
-        $file = $_FILES['image'];
+        $file = $_FILES['image']??null;
         // if ($requestData) {
-        if (!isset($name)) {
-            echo 'Name Field required';
+        if (!isset($_POST['name'])) {
+            http_response_code(400);
+            echo json_encode(array('status' => 'success', 'data' => 'Name Field required'));
+            return;
+        }
+        if (!isset($_POST['bannerId'])) {
+            http_response_code(400);
+            echo json_encode(array('status' => 'success', 'data' => 'Banner Id required'));
             return;
         }
 
-        $fileName = $file['name'];
-        $fileTmpPath = $file['tmp_name'];
-        $fileSize = $file['size'];
-        $fileError = $file['error'];
+        $name = $_POST['name'];
+        $bannerId = $_POST['bannerId'];
 
-
-        $image_path = 'images/' . $fileName;
-
-        move_uploaded_file($fileTmpPath, $image_path);
         $banner = Banner::getById($bannerId, $pdo);
+
+        if ($file) {
+            $fileName = $file['name'];
+            $fileTmpPath = $file['tmp_name'];
+   
+            $image_path = 'images/' . $fileName;
+
+            move_uploaded_file($fileTmpPath, $image_path);
+
+            $banner->image = $fileName;
+        }else{
+            $banner->image = null;
+
+        }
 
         // $banner = new Banner($name, $fileName, $description);
         if ($banner) {
             $banner->id = $bannerId;
             $banner->name = $name;
-            $banner->image = $fileName;
+
             $banner->description = $description;
             $banner->save();
+            $banner = Banner::getById($bannerId, $pdo);
 
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => $banner));
         } else {
-            http_response_code(404);
+            http_response_code(400);
             echo json_encode(array('status' => 'failed', 'data' => 'resource not found'));
         }
     }

@@ -1,6 +1,6 @@
 <?php
-require_once '../config/db-connect.php';
-require '../require/url.php';
+require_once './config/db-connect.php';
+require './require/url.php';
 
 class SubCategory
 {
@@ -24,17 +24,28 @@ class SubCategory
     {
         if ($this->id) {
             // Update existing banner
-            $query = "UPDATE sub_categories SET name = :name, image = :image, description = :description ,categoryId=:categoryId WHERE id = :id";
+            $query = "UPDATE sub_categories SET name = :name, description = :description ,categoryId=:categoryId";
+            $statement = $this->pdo->prepare($query);
+
+            if ($this->image !== null) {
+                $query .= ", image = :image";
+            }
+            $query .= " WHERE id = :id";
             $statement = $this->pdo->prepare($query);
             $statement->bindParam(':id', $this->id);
+            if ($this->image !== null) {
+                $statement->bindParam(':image', $this->image);
+            }
+
         } else {
             // Insert new banner
             $query = "INSERT INTO sub_categories (name, image, description,categoryId) VALUES (:name, :image, :description,:categoryId)";
             $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':image', $this->image);
+
         }
 
         $statement->bindParam(':name', $this->name);
-        $statement->bindParam(':image', $this->image);
         $statement->bindParam(':description', $this->description);
         $statement->bindParam(':categoryId', $this->categoryId);
 

@@ -1,6 +1,6 @@
 <?php
-require_once '../config/db-connect.php';
-require '../require/url.php';
+require_once './config/db-connect.php';
+require './require/url.php';
 
 class Product
 {
@@ -31,32 +31,51 @@ class Product
     public function save()
     {
         if ($this->id) {
-            // Update existing banner
-            $query = "UPDATE products SET name = :name, image = :image, description = :description ,categoryId=:categoryId,subCategoryId=:subCategoryId,mrp=:mrp,discount=:discount,quantity=:quantity WHERE id = :id";
+            // Update existing product
+            $query = "UPDATE products SET name = :name, description = :description, categoryId = :categoryId, subCategoryId = :subCategoryId, mrp = :mrp, quantity = :quantity, discount = :discount";
+            if ($this->image !== null) {
+                $query .= ", image = :image";
+
+            }
+            $query .= " WHERE id = :id";
             $statement = $this->pdo->prepare($query);
             $statement->bindParam(':id', $this->id);
+
+            if ($this->image !== null) {
+                $statement->bindParam(':image', $this->image);
+            }
+            $statement->bindParam(':name', $this->name);
+            $statement->bindParam(':description', $this->description);
+            $statement->bindParam(':categoryId', $this->categoryId);
+            $statement->bindParam(':subCategoryId', $this->subCategoryId);
+            $statement->bindParam(':mrp', $this->mrp);
+            $statement->bindParam(':quantity', $this->quantity);
+            $statement->bindParam(':discount', $this->discount);
+        
+            $statement->execute();
         } else {
-            // Insert new banner
-            $query = "INSERT INTO products (name, image, description,categoryId,subCategoryId,mrp,discount,quantity) VALUES (:name, :image, :description,:categoryId,:subCategoryId,:mrp,:discount,:quantity)";
+            // Insert new product
+            $query = "INSERT INTO products (name, image, description, categoryId, subCategoryId, mrp, quantity, discount) VALUES (:name, :image, :description, :categoryId, :subCategoryId, :mrp, :quantity, :discount)";
             $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':image', $this->image);
+
+            $statement->bindParam(':name', $this->name);
+            $statement->bindParam(':description', $this->description);
+            $statement->bindParam(':categoryId', $this->categoryId);
+            $statement->bindParam(':subCategoryId', $this->subCategoryId);
+            $statement->bindParam(':mrp', $this->mrp);
+            $statement->bindParam(':quantity', $this->quantity);
+            $statement->bindParam(':discount', $this->discount);
+        
+            $statement->execute();
         }
-
-        $statement->bindParam(':name', $this->name);
-        $statement->bindParam(':image', $this->image);
-        $statement->bindParam(':description', $this->description);
-        $statement->bindParam(':categoryId', $this->categoryId);
-        $statement->bindParam(':subCategoryId', $this->subCategoryId);
-        $statement->bindParam(':mrp', $this->mrp);
-        $statement->bindParam(':quantity', $this->quantity);
-        $statement->bindParam(':discount', $this->discount);
-
-        $statement->execute();
-
+    
+  
+    
         if (!$this->id) {
             $this->id = $this->pdo->lastInsertId();
         }
     }
-
     public function delete($id)
     {
         $query = "DELETE FROM products WHERE id = :id";

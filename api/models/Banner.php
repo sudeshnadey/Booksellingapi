@@ -21,22 +21,34 @@ class Banner
     {
         if ($this->id) {
             // Update existing banner
-            $query = "UPDATE banners SET name = :name, image = :image, description = :description WHERE id = :id";
+            $query = "UPDATE banners SET name = :name, description = :description";
+            $params = [
+                'name' => $this->name,
+                'description' => $this->description,
+            ];
+    
+            if ($this->image !== null) {
+                $query .= ", image = :image";
+                $params['image'] = $this->image;
+            }
+    
+            $query .= " WHERE id = :id";
+            $params['id'] = $this->id;
+    
             $statement = $this->pdo->prepare($query);
-            $statement->bindParam(':id', $this->id);
+            $statement->execute($params);
         } else {
             // Insert new banner
             $query = "INSERT INTO banners (name, image, description) VALUES (:name, :image, :description)";
+            $params = [
+                'name' => $this->name,
+                'image' => $this->image,
+                'description' => $this->description,
+            ];
+    
             $statement = $this->pdo->prepare($query);
-        }
-
-        $statement->bindParam(':name', $this->name);
-        $statement->bindParam(':image', $this->image);
-        $statement->bindParam(':description', $this->description);
-
-        $statement->execute();
-
-        if (!$this->id) {
+            $statement->execute($params);
+    
             $this->id = $this->pdo->lastInsertId();
         }
     }
