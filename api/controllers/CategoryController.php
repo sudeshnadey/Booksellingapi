@@ -94,6 +94,7 @@ class CategoryController
 
         // $category = new category($name, $fileName, $description);
         if ($category) {
+            $category->id = $categoryId;
             $category->name = $name;
             $category->image = $fileName;
             $category->description = $description;
@@ -111,7 +112,7 @@ class CategoryController
     {
         $pdo = createDatabaseConnection();
 
-        $categoryId = $_POST['categoryId'];
+        $categoryId = $_POST['categoryId'] ??null;
 
         $category = Category::getById($categoryId, $pdo);
         // echo json_encode($categoryId);
@@ -121,7 +122,7 @@ class CategoryController
             echo json_encode(array('status' => 'success', 'data' => 'successfully deleted'));
         } else {
             http_response_code(400);
-            echo json_encode(array('status' => 'failed', 'data' => 'error while deleted'));
+            echo json_encode(array('status' => 'failed', 'data' => 'error while deleting'));
         }
     }
 
@@ -146,7 +147,7 @@ class CategoryController
 
             // Return an error response
             http_response_code(500); // Internal Server Error
-            echo json_encode(['error' => 'An error occurred while fetching banners.']);
+            echo json_encode(['error' => 'An error occurred while fetching categories.']);
         }
     }
 

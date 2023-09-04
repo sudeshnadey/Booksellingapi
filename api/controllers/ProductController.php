@@ -142,6 +142,7 @@ class ProductController
 
         // $category = new category($name, $fileName, $description);
         if ($product) {
+            $product->id = $id;
             $product->name = $name;
             $product->image = $fileName;
             $product->categoryId = $categoryId;
@@ -164,7 +165,7 @@ class ProductController
     {
         $pdo = createDatabaseConnection();
 
-        $id = $_POST['id'];
+        $id = $_POST['id']??null;
 
         $category = Product::getById($id, $pdo);
         // echo json_encode($id);
@@ -174,7 +175,7 @@ class ProductController
             echo json_encode(array('status' => 'success', 'data' => 'successfully deleted'));
         } else {
             http_response_code(400);
-            echo json_encode(array('status' => 'failed', 'data' => 'error while deleted'));
+            echo json_encode(array('status' => 'failed', 'data' => 'error while deleting'));
         }
     }
 

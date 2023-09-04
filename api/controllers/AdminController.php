@@ -28,11 +28,11 @@ class AdminController
                     // Create and sign the JWT token
                     $tokenId = base64_encode(random_bytes(32));
                     $issuedAt = time();
-                    // $expirationTime = $issuedAt + 3600; // Token expires in 1 hour
+                    $expirationTime = $issuedAt + 3600; // Token expires in 1 hour
 
                     // $payload = [
                     //     'iat' => $issuedAt,
-                    //     // 'exp' => $expirationTime,
+                        // 'exp' => $expirationTime,
                     //     'jti' => $tokenId,
                     //     'data' => [
                     //         'adminId' => $admin->getId(),
@@ -40,10 +40,10 @@ class AdminController
                     //     ]
                     // ];
 
-                    $jwt = JWT::encode(['user'=>'admin','username'=>$admin->getUsername()], $this->secretKey, 'HS256');
+                    $jwt = JWT::encode(['user'=>'admin','username'=>$admin->getUsername(),'exp' => $expirationTime], $this->secretKey, 'HS256','ewewe');
 
                     // Return the JWT token
-                    echo json_encode(['token' => $jwt]);
+                    echo json_encode(['token' => $jwt,'user'=>$admin]);
                     return;
                 }
             }

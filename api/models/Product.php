@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db-connect.php';
+require '../require/url.php';
 
 class Product
 {
@@ -91,7 +92,7 @@ class Product
 
         $products = array();
         foreach ($fproducts as $data) {
-            $product = new Product($data['name'], $data['image'], $data['description'], $data['categoryId'],
+            $product = new Product($data['name'], imageUrl().$data['image'], $data['description'], $data['categoryId'],
             $data['subCategoryId'],$data['mrp'] ,$data['quantity'],$data['discount'] ,$pdo);
             $product->id = $data['id'];
             $products[] = $product;

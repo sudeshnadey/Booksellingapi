@@ -133,6 +133,7 @@ class SubCategoryController
 
         // $category = new category($name, $fileName, $description);
         if ($category) {
+            $category->id = $id;
             $category->name = $name;
             $category->image = $fileName;
             $category->categoryId = $categoryId;
@@ -151,7 +152,7 @@ class SubCategoryController
     {
         $pdo = createDatabaseConnection();
 
-        $categoryId = $_POST['categoryId'];
+        $categoryId = $_POST['categoryId']??null;
 
         $category = SubCategory::getById($categoryId, $pdo);
         // echo json_encode($categoryId);
@@ -161,7 +162,7 @@ class SubCategoryController
             echo json_encode(array('status' => 'success', 'data' => 'successfully deleted'));
         } else {
             http_response_code(400);
-            echo json_encode(array('status' => 'failed', 'data' => 'error while deleted'));
+            echo json_encode(array('status' => 'failed', 'data' => 'error while deleting'));
         }
     }
 

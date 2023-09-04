@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db-connect.php';
+require '../require/url.php';
 
 class Category
 {
@@ -75,7 +76,7 @@ class Category
 
         $categories = array();
         foreach ($bannerData as $data) {
-            $banner = new Category($data['name'], $data['image'], $data['description'], $pdo);
+            $banner = new Category($data['name'], imageUrl().$data['image'], $data['description'], $pdo);
             $banner->id = $data['id'];
             $categories[] = $banner;
         }

@@ -85,6 +85,7 @@ class BannerController
 
         // $banner = new Banner($name, $fileName, $description);
         if ($banner) {
+            $banner->id = $bannerId;
             $banner->name = $name;
             $banner->image = $fileName;
             $banner->description = $description;
@@ -102,7 +103,7 @@ class BannerController
     {
         $pdo = createDatabaseConnection();
 
-        $bannerId = $_POST['bannerId'];
+        $bannerId = $_POST['bannerId'] ?? null;
 
         $banner = Banner::getById($bannerId, $pdo);
         // echo json_encode($bannerId);
@@ -112,7 +113,7 @@ class BannerController
             echo json_encode(array('status' => 'success', 'data' => 'successfully deleted'));
         } else {
             http_response_code(400);
-            echo json_encode(array('status' => 'failed', 'data' => 'error while deleted'));
+            echo json_encode(array('status' => 'failed', 'data' => 'error while deleting'));
         }
     }
 

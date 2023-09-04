@@ -1,7 +1,6 @@
-// Banner.php
 <?php
 require_once './config/db-connect.php';
-
+require './require/url.php';
 class Banner
 {
     public $id;
@@ -75,8 +74,13 @@ class Banner
         $bannerData = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         $banners = array();
+
+        // $base_url = "https://localhost.com"; // Replace with actual base URL
+        // $base_url = ; // Replace with actual base URL
+
+        // Get the full URL of the filename saved in the database
         foreach ($bannerData as $data) {
-            $banner = new Banner($data['name'], $data['image'], $data['description'], $pdo);
+            $banner = new Banner($data['name'], imageUrl().$data['image'], $data['description'], $pdo);
             $banner->id = $data['id'];
             $banners[] = $banner;
         }

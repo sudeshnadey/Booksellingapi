@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db-connect.php';
+require '../require/url.php';
 
 class SubCategory
 {
@@ -78,7 +79,7 @@ class SubCategory
 
         $sub_categories = array();
         foreach ($subCate as $data) {
-            $sub_category = new SubCategory($data['name'], $data['image'], $data['description'], $data['categoryId'], $pdo);
+            $sub_category = new SubCategory($data['name'], imageUrl().$data['image'], $data['description'], $data['categoryId'], $pdo);
             $sub_category->id = $data['id'];
             $sub_categories[] = $sub_category;
         }
