@@ -32,7 +32,6 @@ try {
 
 } catch (Exception $e) {
     http_response_code(403);
-    echo $e;
     echo json_encode('Un Authorized'); 
     exit ;
 }

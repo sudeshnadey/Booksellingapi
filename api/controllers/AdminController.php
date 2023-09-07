@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 include('./models/Admin.php');
+include('./models/User.php');
 
 use Firebase\JWT\JWT;
 
@@ -52,5 +53,33 @@ class AdminController
         // Invalid login credentials or request
         http_response_code(401);
         echo "Invalid username or password.";
+    }
+
+
+    public function showUsers()
+    {
+        try {
+            $pdo = createDatabaseConnection();
+
+            $categorys = User::getAll($pdo);
+
+            // Convert the banner objects to JSON format
+            $jsonData = json_encode($categorys);
+
+            http_response_code(200);
+            header('Content-Type: application/json');
+
+            // Output the JSON data
+            echo $jsonData;
+            return;
+        } catch (PDOException $e) {
+            // Example: Logging the error
+            error_log('Error fetching categories: ' . $e->getMessage());
+
+            // Return an error response
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'An error occurred while fetching categories.'.$e->getMessage()]);
+            return;
+        }
     }
 }

@@ -49,6 +49,7 @@ class ProductController
             $categoryId = $_POST['categoryId'];
             $description = $_POST['description'];
             $subCategoryId = $_POST['subCategoryId'];
+            $sub2CategoryId = $_POST['sub2CategoryId'];
             $mrp = $_POST['mrp'];
             $quantity = $_POST['quantity'];
             $discount = $_POST['discount'];
@@ -76,7 +77,7 @@ class ProductController
 
             move_uploaded_file($fileTmpPath, $image_path);
 
-            $category = new Product($name, $fileName, $description, $categoryId, $subCategoryId, $mrp, $discount, $quantity);
+            $category = new Product($name, $fileName, $description, $categoryId, $subCategoryId,$sub2CategoryId, $mrp, $discount, $quantity);
             $category->save();
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => $category));

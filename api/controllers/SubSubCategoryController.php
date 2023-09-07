@@ -1,8 +1,8 @@
 <?php
-require './models/SubCategory.php';
+require './models/SubSubCategory.php';
 require_once './config/db-connect.php';
 
-class SubCategoryController
+class SubSubCategoryController
 {
 
 
@@ -23,7 +23,7 @@ class SubCategoryController
                 echo json_encode($response);
                 return;
             }
-            if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])) {
+            if (!isset($_POST['subCategoryId']) || empty($_POST['subCategoryId'])) {
                 // Handle invalid name (name is missing or empty)
                 $response = array(
                     'status' => 'error',
@@ -35,9 +35,8 @@ class SubCategoryController
                 return;
             }
             $name = $_POST['name'];
-            $categoryId = $_POST['categoryId'];
+            $categoryId = $_POST['subCategoryId'];
             $description = $_POST['description'];
-
             if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
                 // Handle invalid file upload (file is missing or has an error)
                 $response = array(
@@ -63,7 +62,7 @@ class SubCategoryController
 
             move_uploaded_file($fileTmpPath, $image_path);
 
-            $category = new SubCategory($name, $fileName, $description,$categoryId);
+            $category = new SubSubCategory($name, $fileName, $description,$categoryId);
             $category->save();
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => $category));
@@ -90,7 +89,7 @@ class SubCategoryController
             echo json_encode($response);
             return;
         }
-        if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])) {
+        if (!isset($_POST['subCategoryId']) || empty($_POST['subCategoryId'])) {
             // Handle invalid name (name is missing or empty)
             $response = array(
                 'status' => 'error',
@@ -115,7 +114,7 @@ class SubCategoryController
         $name = $_POST['name'];
         $description = $_POST['description'];
         $id = $_POST['id'];
-        $categoryId = $_POST['categoryId'];
+        $categoryId = $_POST['subCategoryId'];
 
         // Retrieve the uploaded file
         $file = $_FILES['image']??null;
@@ -126,8 +125,13 @@ class SubCategoryController
             return;
         }
 
-        $category = SubCategory::getById($id, $pdo);
+        $category = SubSubCategory::getById($id, $pdo);
 
+        if(!$category){
+            http_response_code(404);
+            echo json_encode(array('status' => 'failed', 'data' => 'Resource not found'));
+            return;
+        }
         if($file !== null){
             $fileName = $file['name'];
             $fileTmpPath = $file['tmp_name'];
@@ -166,7 +170,7 @@ class SubCategoryController
 
         $categoryId = $_POST['id']??null;
 
-        $category = SubCategory::getById($categoryId, $pdo);
+        $category = SubSubCategory::getById($categoryId, $pdo);
         // echo json_encode($categoryId);
         if ($category && $category->delete($categoryId)) {
 
@@ -183,7 +187,7 @@ class SubCategoryController
         try {
             $pdo = createDatabaseConnection();
 
-            $categorys = SubCategory::getAll($pdo);
+            $categorys = SubSubCategory::getAll($pdo);
 
             // Convert the banner objects to JSON format
             http_response_code(200);
@@ -205,7 +209,7 @@ class SubCategoryController
         try {
             $pdo = createDatabaseConnection();
 
-            $categorys = SubCategory::getAll($pdo);
+            $categorys = SubSubCategory::getAll($pdo);
 
             // Convert the banner objects to JSON format
             $jsonData = json_encode($categorys);

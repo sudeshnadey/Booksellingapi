@@ -9,13 +9,14 @@ class Product
     public $image;
     public $categoryId;
     public $subCategoryId;
+    public $sub2CategoryId;
     public $description;
     public $mrp;
     public $discount;
     public $quantity;
     private $pdo;
 
-    public function __construct($name, $image, $description,$categoryId,$subCategoryId,$mrp,$discount,$quantity)
+    public function __construct($name, $image, $description,$categoryId,$subCategoryId,$sub2CategoryId,$mrp,$discount,$quantity)
     {
         $this->name = $name;
         $this->image = $image;
@@ -25,6 +26,7 @@ class Product
         $this->discount = $discount;
         $this->quantity = $quantity;
         $this->subCategoryId = $subCategoryId;
+        $this->sub2CategoryId = $sub2CategoryId;
         $this->pdo = createDatabaseConnection();
     }
 
@@ -37,12 +39,20 @@ class Product
                 $query .= ", image = :image";
 
             }
+            if ($this->sub2CategoryId !== null) {
+                $query .= ", sub2CategoryId = :sub2CategoryId";
+
+            }
             $query .= " WHERE id = :id";
             $statement = $this->pdo->prepare($query);
             $statement->bindParam(':id', $this->id);
 
             if ($this->image !== null) {
                 $statement->bindParam(':image', $this->image);
+            }
+            if ($this->sub2CategoryId !== null) {
+                $statement->bindParam(':sub2CategoryId', $this->sub2CategoryId);
+
             }
             $statement->bindParam(':name', $this->name);
             $statement->bindParam(':description', $this->description);
@@ -100,7 +110,7 @@ class Product
         $product = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $product ? new Product($product['name'], $product['image'], $product['description'],
-        $product['categoryId'],$product['subCategoryId'] ,$product['mrp'] ,$product['quantity'],$product['discount'] ,$pdo) : null;
+        $product['categoryId'],$product['subCategoryId'] ,$product['sub2CategoryId'],$product['mrp'] ,$product['quantity'],$product['discount'] ,$pdo) : null;
     }
 
     public static function getAll($pdo)
@@ -112,7 +122,7 @@ class Product
         $products = array();
         foreach ($fproducts as $data) {
             $product = new Product($data['name'], imageUrl().$data['image'], $data['description'], $data['categoryId'],
-            $data['subCategoryId'],$data['mrp'] ,$data['quantity'],$data['discount'] ,$pdo);
+            $data['subCategoryId'],$data['sub2CategoryId'],$data['mrp'] ,$data['quantity'],$data['discount'] ,$pdo);
             $product->id = $data['id'];
             $products[] = $product;
         }
