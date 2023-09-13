@@ -8,6 +8,7 @@ class Category
     public $name;
     public $image;
     public $description;
+    public $type;
     private $pdo;
 
     public function __construct($name, $image, $description)
@@ -22,10 +23,11 @@ class Category
     {
         if ($this->id) {
             // Update existing banner
-            $query = "UPDATE categories SET name = :name,description = :description";
+            $query = "UPDATE categories SET name = :name,description = :description,type=:type";
             $params = [
                 'name' => $this->name,
                 'description' => $this->description,
+                'type' => $this->type,
             ];
     
             if ($this->image !== null) {
@@ -40,11 +42,12 @@ class Category
             $statement->execute($params);
         } else {
             // Insert new banner
-            $query = "INSERT INTO categories (name, image, description) VALUES (:name, :image, :description)";
+            $query = "INSERT INTO categories (name, image, description,type) VALUES (:name, :image, :description,:type)";
             $statement = $this->pdo->prepare($query);
             $statement->bindParam(':name', $this->name);
             $statement->bindParam(':image', $this->image);
             $statement->bindParam(':description', $this->description);
+            $statement->bindParam(':type', $this->type);
             $statement->execute();
 
         }
@@ -69,30 +72,29 @@ class Category
         }
     }
 
-    public static function getById($bannerId, $pdo)
+    public static function getById($id, $pdo)
     {
         $query = "SELECT * FROM categories WHERE id = :id";
         $statement = $pdo->prepare($query);
-        $statement->bindParam(':id', $bannerId);
+        $statement->bindParam(':id', $id);
         $statement->execute();
-        $bannerData = $statement->fetch(PDO::FETCH_ASSOC);
+        $categoryData = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return $bannerData ? new Category($bannerData['name'], $bannerData['image'], $bannerData['description'], $pdo) : null;
+        return $categoryData ? new Category($categoryData['name'], $categoryData['image'], $categoryData['description']) : null;
     }
 
     public static function getAll($pdo)
     {
         $query = "SELECT * FROM categories";
         $statement = $pdo->query($query);
-        $bannerData = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $categories = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        $categories = array();
-        foreach ($bannerData as $data) {
-            $banner = new Category($data['name'], imageUrl().$data['image'], $data['description'], $pdo);
-            $banner->id = $data['id'];
-            $categories[] = $banner;
-        }
+     
+        return array_map(function ($data) {
+            $data['image'] = !empty($data['image']) ? imageUrl() . $data['image'] : null;
+            return $data;
+        }, $categories);
 
-        return $categories;
+
     }
 }

@@ -6,13 +6,7 @@ class CategoryController
 {
 
 
-    function test_input($data)
-    {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
-    }
+
     public function addCategory()
     {
 
@@ -27,7 +21,14 @@ class CategoryController
                 echo json_encode($response);
                 return;
             }
-            $name = $_POST['name'];
+
+            $name = $_POST['name']??null;
+            $type = $_POST['type']??null;
+
+            if ($name == null || $type == null) {
+                echo json_encode(array('status' => 'failed', 'data' => 'fill  required field'));
+                return;
+            }
             $description = $_POST['description'];
 
             if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
@@ -54,6 +55,7 @@ class CategoryController
             move_uploaded_file($fileTmpPath, $image_path);
 
             $category = new Category($name, $fileName, $description);
+            $category->type = $_POST['type'];
             $category->save();
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => $category));
@@ -68,15 +70,16 @@ class CategoryController
     {
         $pdo = createDatabaseConnection();
 
-        $name = $_POST['name'];
+        $name = $_POST['name'] ?? null;
         $description = $_POST['description'];
-        $categoryId = $_POST['categoryId'];
+        $categoryId = $_POST['categoryId'] ?? null;
+        $type = $_POST['type'] ?? null;
 
         // Retrieve the uploaded file
         $file = $_FILES['image'] ?? null;
         // if ($requestData) {
-        if (!isset($name)) {
-            echo 'Name Field required';
+        if ($name == null || $categoryId == null || $type == null) {
+            echo json_encode(array('status' => 'failed', 'data' => 'fill  required field'));
             return;
         }
 
@@ -85,26 +88,22 @@ class CategoryController
         if ($file != null) {
             $fileName = $file['name'];
             $fileTmpPath = $file['tmp_name'];
-            $fileSize = $file['size'];
-            $fileError = $file['error'];
-    
-    
+
             $image_path = 'images/' . $fileName;
-    
+
             move_uploaded_file($fileTmpPath, $image_path);
             $category->image = $fileName;
-
-        }else{
+        } else {
             $category->image = null;
-
         }
-     
+
 
         // $category = new category($name, $fileName, $description);
         if ($category) {
             $category->id = $categoryId;
             $category->name = $name;
             $category->description = $description;
+            $category->type = $type;
             $category->save();
 
             http_response_code(200);
@@ -174,12 +173,10 @@ class CategoryController
             // Output the JSON data
             echo $jsonData;
         } catch (PDOException $e) {
-            // Example: Logging the error
-            error_log('Error fetching categories: ' . $e->getMessage());
 
             // Return an error response
             http_response_code(500); // Internal Server Error
-            echo json_encode(['error' => 'An error occurred while fetching categories.']);
+            echo json_encode(['error' => 'Error fetching categories: ' . $e->getMessage()]);
         }
     }
 }

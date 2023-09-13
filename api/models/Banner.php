@@ -85,18 +85,13 @@ class Banner
         $statement = $pdo->query($query);
         $bannerData = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        $banners = array();
 
-        // $base_url = "https://localhost.com"; // Replace with actual base URL
-        // $base_url = ; // Replace with actual base URL
+        return array_map(function ($data) {
+            $data['image'] = !empty($data['image']) ? imageUrl() . $data['image'] : null;
+            return $data;
+        }, $bannerData);
 
-        // Get the full URL of the filename saved in the database
-        foreach ($bannerData as $data) {
-            $banner = new Banner($data['name'], imageUrl().$data['image'], $data['description'], $pdo);
-            $banner->id = $data['id'];
-            $banners[] = $banner;
-        }
 
-        return $banners;
+ 
     }
 }

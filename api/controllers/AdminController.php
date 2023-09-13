@@ -61,10 +61,10 @@ class AdminController
         try {
             $pdo = createDatabaseConnection();
 
-            $categorys = User::getAll($pdo);
+            $users = User::getAll($pdo);
 
             // Convert the banner objects to JSON format
-            $jsonData = json_encode($categorys);
+            $jsonData = json_encode($users);
 
             http_response_code(200);
             header('Content-Type: application/json');
@@ -78,7 +78,7 @@ class AdminController
 
             // Return an error response
             http_response_code(500); // Internal Server Error
-            echo json_encode(['error' => 'An error occurred while fetching categories.'.$e->getMessage()]);
+            echo json_encode(['error' => 'An error occurred while fetching users.'.$e->getMessage()]);
             return;
         }
     }
