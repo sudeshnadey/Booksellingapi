@@ -153,10 +153,11 @@ class ProductController
             $id = $_POST['id'];
             $categoryId = $_POST['categoryId'];
 
-            $subCategoryId = $_POST['subCategoryId'];
             $mrp = $_POST['mrp'];
             $quantity = $_POST['quantity'];
             $discount = $_POST['discount'];
+            $type = $_POST['type'];
+            $lang = $_POST['lang'];
 
             $file = $_FILES['image'] ?? null;
             $filec = $_FILES['content'] ?? null;
@@ -204,11 +205,12 @@ class ProductController
                 $product->id = $id;
                 $product->name = $name;
                 $product->categoryId = $categoryId;
-                $product->subCategoryId = $subCategoryId;
                 $product->mrp = $mrp;
                 $product->quantity = $quantity;
                 $product->discount = $discount;
                 $product->description = $description;
+                $product->type = $type;
+                $product->lang = $lang;
 
                 $product->delivery_price = $_POST['delivery_price'] ?? 0;
                 $product->save();

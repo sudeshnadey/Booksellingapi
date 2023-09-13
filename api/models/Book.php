@@ -154,14 +154,24 @@ class Book
     {
         $query = "SELECT * FROM books";
         $statement = $pdo->query($query);
-        $fbooks = $statement->fetchAll(PDO::FETCH_ASSOC);
-        return  $fproducs = array_map(function ($data) {
-            $data['image'] = !empty($data['image']) ? imageUrl() . $data['image'] : null;
+        $books = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+        $fbooks = array_map(function ($data) use ($pdo) {
+            $q2 = "SELECT * FROM images WHERE type=? AND item_id=?";
+            $st = $pdo->prepare($q2);
+            $st->execute(['book', $data["id"]]);
+            $images = $st->fetchAll(PDO::FETCH_ASSOC);
+    
+            $data['images'] = array_map(function ($image) {
+                return imageUrl() . $image['name'];
+            }, $images);
+    
+            $data['image'] = !empty($data['images']) ? $data['images'][0] : null;
             $data['sample'] = !empty($data['sample']) ? imageUrl() . $data['sample'] : null;
             $data['barcode'] = !empty($data['barcode']) ? imageUrl() . $data['barcode'] : null;
             return $data;
-        }, $fbooks);
-
-     
+        }, $books);
+    
+        return $fbooks;
     }
 }
