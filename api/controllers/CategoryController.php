@@ -179,4 +179,28 @@ class CategoryController
             echo json_encode(['error' => 'Error fetching categories: ' . $e->getMessage()]);
         }
     }
+
+
+    public function showCategorysByType()
+    {
+        try {
+            $pdo = createDatabaseConnection();
+
+            $categorys = Category::getByType($pdo,$_GET['type']??'');
+
+            // Convert the banner objects to JSON format
+            $jsonData = json_encode($categorys);
+
+            http_response_code(200);
+            header('Content-Type: application/json');
+
+            // Output the JSON data
+            echo $jsonData;
+        } catch (PDOException $e) {
+
+            // Return an error response
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'Error fetching categories: ' . $e->getMessage()]);
+        }
+    }
 }

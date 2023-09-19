@@ -209,7 +209,6 @@ class ProductController
                 $product->quantity = $quantity;
                 $product->discount = $discount;
                 $product->description = $description;
-                $product->type = $type;
                 $product->lang = $lang;
 
                 $product->delivery_price = $_POST['delivery_price'] ?? 0;
@@ -270,12 +269,36 @@ class ProductController
         }
     }
 
-    public function showshowProductsToUsers()
+    public function showsProductsDetailUsers()
     {
         try {
             $pdo = createDatabaseConnection();
 
-            $products = Book::getAll($pdo);
+            $products = Book::getDetail($pdo);
+
+            // Convert the banner objects to JSON format
+            $jsonData = json_encode($products);
+
+            http_response_code(200);
+            header('Content-Type: application/json');
+
+            // Output the JSON data
+            echo $jsonData;
+        } catch (PDOException $e) {
+            // Example: Logging the error
+            error_log('Error fetching categories: ' . $e->getMessage());
+
+            // Return an error response
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'An error occurred while fetching categories.'.$e->getMessage()]);
+        }
+    }
+    public function showProductsByCategory()
+    {
+        try {
+            $pdo = createDatabaseConnection();
+
+            $products = Book::getAllBooksByCategory($pdo);
 
             // Convert the banner objects to JSON format
             $jsonData = json_encode($products);
@@ -292,6 +315,54 @@ class ProductController
             // Return an error response
             http_response_code(500); // Internal Server Error
             echo json_encode(['error' => 'An error occurred while fetching categories.']);
+        }
+    }
+    public function getCategoriesWithBooks()
+    {
+        try {
+            $pdo = createDatabaseConnection();
+
+            $books = Book::getCategoriesWithBooks($pdo);
+
+            // Convert the banner objects to JSON format
+            $jsonData = json_encode($books);
+
+            http_response_code(200);
+            header('Content-Type: application/json');
+
+            // Output the JSON data
+            echo $jsonData;
+        } catch (PDOException $e) {
+            // Example: Logging the error
+            error_log('Error fetching categories: ' . $e->getMessage());
+
+            // Return an error response
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'An error occurred while fetching categories.'.$e->getMessage()]);
+        }
+    }
+    public function getNewReleases()
+    {
+        try {
+            $pdo = createDatabaseConnection();
+
+            $books = Book::getNewReleases($pdo);
+
+            // Convert the banner objects to JSON format
+            $jsonData = json_encode($books);
+
+            http_response_code(200);
+            header('Content-Type: application/json');
+
+            // Output the JSON data
+            echo $jsonData;
+        } catch (PDOException $e) {
+            // Example: Logging the error
+            error_log('Error fetching categories: ' . $e->getMessage());
+
+            // Return an error response
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['error' => 'An error occurred while fetching categories.'.$e->getMessage()]);
         }
     }
 }

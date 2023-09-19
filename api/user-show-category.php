@@ -4,4 +4,11 @@ require_once 'controllers/CategoryController.php';
 require_once 'require/header.php';
 
 $adminController = new CategoryController();
- $adminController->showCategorysToUsers();
+
+if(isset($_GET['type'])){
+    $adminController->showCategorysByType();
+
+}else{
+    $adminController->showCategorysToUsers();
+
+}

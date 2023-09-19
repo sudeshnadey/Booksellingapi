@@ -97,4 +97,23 @@ class Category
 
 
     }
+    public static function getByType($pdo,$type)
+    {
+        $query = "SELECT * FROM categories WHERE type=:type";
+
+
+        $statement = $pdo->prepare($query);
+
+        $statement->bindParam(':type',$type);
+        $statement->execute();
+        $categories = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+     
+        return array_map(function ($data) {
+            $data['image'] = !empty($data['image']) ? imageUrl() . $data['image'] : null;
+            return $data;
+        }, $categories);
+
+
+    }
 }

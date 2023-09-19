@@ -37,18 +37,28 @@ class UserController
                         $expirationTime = $issuedAt + 3600; // Token expires in 1 hour
                         $jwt = JWT::encode(['user' => 'user', 'phone' => $user->getPhone()], $this->secretKey, 'HS256');
 
-                       unset($user->password);
-                       unset($user->id);
-                       unset($user->emailid);
+                        $pdo=createDatabaseConnection();
+                        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
+                        $stmt->bindParam(':id', $user->id);
+                        $stmt->execute();
+                    
+                        $user2 = $stmt->fetch(PDO::FETCH_ASSOC);
+                        unset($user2['password']);
+                     
+               
                         // Return the JWT token
-                        echo json_encode(['token' => $jwt, 'user' => $user]);
+                        echo json_encode(['token' => $jwt, 'user' => $user2]);
                         return;
+                    }else{
+                        http_response_code(401);
+                        echo json_encode(['message' => "Incorrect username or password."]);
+                        exit;
                     }
                 // }
             } catch (Exception $e) {
                 // Handle the exception
                 http_response_code(500);
-                echo json_encode(['message' => 'An error occurred.']);
+                echo json_encode(['message' => 'An error occurred.'.$e->getMessage()]);
                 exit;
             }
         }
@@ -63,10 +73,10 @@ class UserController
     public function registerUser()
     {
         // Retrieve the JSON data from the request body
-        $jsonData = file_get_contents('php://input');
+        $data = $_POST;
 
         // Decode the JSON data
-        $data = json_decode($jsonData, true);
+        // $data = json_decode($jsonData, true);
 
         // Validate the required fields
         if (empty($data['name'])  || empty($data['password']) || empty($data['phone'])) {

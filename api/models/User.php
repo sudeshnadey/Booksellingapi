@@ -54,7 +54,9 @@ class User
 
             if ($adminData) {
 
-                return new User($adminData['name'], $adminData['password'], $adminData['phone']);
+                $user= new User($adminData['name'], $adminData['password'], $adminData['phone']);
+                $user->id=$adminData['id'];
+                return $user;
             } else {
                 return null; // Admin not found
             }
