@@ -19,7 +19,7 @@ try {
 
     $decoded = \Firebase\JWT\JWT::decode($token,new Key($secretKey,'HS256'));
 
-    $user = User::getByUsername($decoded->phone);
+    $user = User::getByUsername($decoded->phone??null);
 
     if($decoded->user !='user' || $user == null){
         http_response_code(403);

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+require 'models/Admin.php';
 
 $headers = apache_request_headers();
 $token = $headers['token'] ?? null;
@@ -18,8 +19,9 @@ try {
 
 
     $decoded = \Firebase\JWT\JWT::decode($token,new Key($secretKey,'HS256'));
+    $user = Admin::getByUsername($decoded->username??null);
 
-    if($decoded->user !='admin'){
+    if($decoded->user !='admin' || $user == null){
         http_response_code(403);
         echo json_encode('Un Authorized'); 
         exit ;

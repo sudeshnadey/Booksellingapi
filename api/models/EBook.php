@@ -2,7 +2,7 @@
 require_once './config/db-connect.php';
 require './require/url.php';
 
-class Book
+class EBook
 {
     public $id;
     public $name;
@@ -18,9 +18,7 @@ class Book
     public $sold = 0;
     public $sample;
     public $delivery_price;
-    public $ebook_price;
     public $price;
-    public $type;
     private $pdo;
 
     public function __construct($name, $description, $categoryId,  $lang, $mrp, $discount, $quantity)
@@ -42,7 +40,7 @@ class Book
             $query = "UPDATE books SET name = :name, description = :description,
              categoryId = :categoryId,lang = :lang, mrp = :mrp,
               quantity = :quantity, discount = :discount,
-                 delivery_price= :delivery_price,type=:type";
+                 delivery_price= :delivery_price";
 
             if ($this->sample !== null) {
                 $query .= ", sample = :sample";
@@ -70,7 +68,6 @@ class Book
             $statement->bindParam(':discount', $this->discount);
 
             $statement->bindParam(':delivery_price', $this->delivery_price);
-            $statement->bindParam(':type', $this->type);
 
             $statement->execute();
         } else {
@@ -84,7 +81,7 @@ class Book
                 lang,
                   barcode,
                   sample,
-                  delivery_price,type,ebook_price
+                  delivery_price
                   ) VALUES (
                 :name,
                  :description, 
@@ -95,7 +92,7 @@ class Book
                   :lang,
                   :barcode,
                   :sample,
-                  :delivery_price,:type,:ebook_price
+                  :delivery_price
                   )";
             $statement = $this->pdo->prepare($query);
 
@@ -109,8 +106,7 @@ class Book
             $statement->bindParam(':barcode', $this->barcode);
             $statement->bindParam(':sample', $this->sample);
             $statement->bindParam(':delivery_price', $this->delivery_price);
-            $statement->bindParam(':type', $this->type);
-            $statement->bindParam(':ebook_price', $this->ebook_price);
+            // $statement->bindParam(':sold', $this->sold);
 
             $statement->execute();
         }
@@ -187,20 +183,22 @@ class Book
         }
     }
 
-    public static function addRecentlyViewed($pdo, $bookId, $type,$userId)
+    public static function addRecentlyViewed($pdo, $bookId, $type)
     {
-       
+        $userId = 1; // Replace with the actual user ID
+        $productId = 1; // Replace with the actual product ID
+
         // Insert the view into the viewing history
-        $query = "INSERT INTO viewing_history (user_id, item_id,type, timestamp)
+        $query = "INSERT INTO viewing_history (user_id, item_id,type timestamp)
           VALUES (:userId, :itemId,:type, NOW())";
         $statement = $pdo->prepare($query);
         $statement->bindParam(':userId', $userId);
         $statement->bindParam(':itemId', $bookId);
-        $statement->bindParam(':type', 'book');
         $statement->execute();
     }
     public static function fetchRecentlyViewd($pdo, $userId, $type)
     {
+        $userId = 1; // Replace with the actual user ID
         $limit = 5; // Number of recently viewed products to fetch
 
         // Fetch recently viewed products with product names
@@ -309,16 +307,14 @@ class Book
     {
         $cate_id = $_GET['category'];
         $lang = $_GET['lang'] ?? 'in';
-        $type = $_GET['type'] ?? 'book';
         if ($cate_id) {
 
 
-            $query = "SELECT id,name,mrp,discount,rate,quantity,type FROM books WHERE categoryId = :categoryId AND lang=:lang AND type=:type AND quantity > 0 ORDER BY created_at DESC ";
+            $query = "SELECT id,name,mrp,discount,rate,quantity FROM books WHERE categoryId = :categoryId AND lang=:lang AND quantity > 0 ORDER BY created_at DESC ";
 
             $statement = $pdo->prepare($query);
             $statement->bindParam(':categoryId', $cate_id);
             $statement->bindParam(':lang', $lang);
-            $statement->bindParam(':type', $type);
             $statement->execute();
             $books = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -347,16 +343,13 @@ class Book
 
     public static function getCategoriesWithBooks($pdo)
     {
-        $query = "SELECT b.type as type, c.id as category_id,c.name as category_name,c.image as category_image, b.id as
+        $query = "SELECT c.id as category_id,c.name as category_name,c.image as category_image, b.id as
          book_id,b.name as book_name,b.mrp FROM categories c LEFT JOIN books b 
-         ON c.id = b.categoryId WHERE b.lang=:lang AND b.type=:type ORDER BY b.created_at DESC";
+         ON c.id = b.categoryId WHERE b.lang=:lang ORDER BY b.created_at DESC";
 
         $lang = $_GET['lang'] ?? 'in';
-        $type=$_GET['type']?? 'book';
-
         $statement = $pdo->prepare($query);
         $statement->bindParam(':lang', $lang);
-        $statement->bindParam(':type', $type);
         $statement->execute();
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -387,7 +380,6 @@ class Book
 
             if (isset($row['book_id'])  && count($categories[$categoryId]['books']) < 5) {
                 $categories[$categoryId]['books'][] = [
-                    'type' => $row['type'],
                     'book_id' => $row['book_id'],
                     'book_name' => $row['book_name'],
                     'image' => $dd['images'][0] ?? null,
@@ -405,22 +397,19 @@ class Book
     public static function getNewReleases($pdo)
     {
 
-        $query = "SELECT b.type, c.id as category_id,c.name as category_name,c.image as category_image, b.id as
+        $query = "SELECT c.id as category_id,c.name as category_name,c.image as category_image, b.id as
          book_id,b.name as book_name,b.mrp FROM categories c  JOIN books b 
-         ON c.id = b.categoryId WHERE b.lang=:lang AND b.type=:type ORDER BY b.created_at DESC";
+         ON c.id = b.categoryId WHERE b.lang=:lang ORDER BY b.created_at DESC";
 
         $filt = $_GET['filter'] ?? '';
 
         if (!($filt == 'all')) {
-            $query .= ' LIMIT 5';
+            $query .= ' LIMIT 2';
         }
 
         $lang = $_GET['lang'] ?? 'in';
-        $type=$_GET['type']?? 'book';
-
         $statement = $pdo->prepare($query);
         $statement->bindParam(':lang', $lang);
-        $statement->bindParam(':type', $type);
         $statement->execute();
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 

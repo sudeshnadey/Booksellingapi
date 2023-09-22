@@ -1,11 +1,11 @@
 <?php
-require './models/Book.php';
+require './models/EBook.php';
 require_once './config/db-connect.php';
 require_once './require/image-upload.php';
 
 use Ramsey\Uuid\Uuid;
 
-class ProductController
+class EbookController
 {
 
 
@@ -66,22 +66,8 @@ class ProductController
                 }
 
 
-                // Retrieve the uploaded file
-                // $file = $_FILES['image'];
-
-                // $originalFileName = $file['name'];
-                // $fileExtension = pathinfo($originalFileName, PATHINFO_EXTENSION);
-
-                // $fileName = Uuid::uuid4()->toString() . '.' . $fileExtension;
-                // $fileTmpPath = $file['tmp_name'];
-                // $image_path = 'images/' . $fileName;
-
-                // move_uploaded_file($fileTmpPath, $image_path);
-
                 $product = new Book($name, $description, $categoryId, $lang, $mrp, $discount, $quantity);
                 $product->delivery_price = $_POST['delivery_price'] ?? 0;
-                $product->type = $_POST['type'];
-                $product->ebook_price = $_POST['ebook_price'];
 
                 if ($fileb !== null) {
                     $originalFileName = $fileb['name'];
@@ -212,8 +198,6 @@ class ProductController
                 $product->discount = $discount;
                 $product->description = $description;
                 $product->lang = $lang;
-                $product->type = $type;
-                $product->ebook_price = $_POST['ebook_price'];
 
                 $product->delivery_price = $_POST['delivery_price'] ?? 0;
                 $product->save();
@@ -236,9 +220,9 @@ class ProductController
 
         $id = $_POST['id'] ?? null;
 
-        $book = Book::getById($id, $pdo);
+        $category = Book::getById($id, $pdo);
         // echo json_encode($id);
-        if ($book && $book->delete($id)) {
+        if ($category && $category->delete($id)) {
 
             http_response_code(200);
             echo json_encode(array('status' => 'success', 'data' => 'successfully deleted'));
