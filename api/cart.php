@@ -16,11 +16,8 @@ try {
     exit;
 }
 
-// Handle the API requests
 
-
-// Authenticate user (Example: using a user ID)
-$userId = getUser()->id; // Retrieve user ID from the request. You may use a proper authentication mechanism.
+$userId = getUser()->id; 
 
 // Add a book to the cart
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -31,20 +31,20 @@ class AdminController
                     $issuedAt = time();
                     $expirationTime = $issuedAt + 3600; // Token expires in 1 hour
 
-                    // $payload = [
-                    //     'iat' => $issuedAt,
-                        // 'exp' => $expirationTime,
-                    //     'jti' => $tokenId,
-                    //     'data' => [
-                    //         'adminId' => $admin->getId(),
-                    //         'username' => $admin->getUsername()
-                    //     ]
-                    // ];
+              
 
                     $jwt = JWT::encode(['user'=>'admin','username'=>$admin->getUsername()], $this->secretKey, 'HS256');
 
+                    $id=$admin->getId();
+                    $pdo=createDatabaseConnection();
+                    $stmt = $pdo->prepare("SELECT * FROM admins WHERE id = :id");
+                    $stmt->bindParam(':id', $id);
+                    $stmt->execute();
+                
+                    $user2 = $stmt->fetch(PDO::FETCH_ASSOC);
+                    unset($user2['password']);
                     // Return the JWT token
-                    echo json_encode(['token' => $jwt,'user'=>$admin]);
+                    echo json_encode(['token' => $jwt,'user'=>$user2]);
                     return;
                 }
             }

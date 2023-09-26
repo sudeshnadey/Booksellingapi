@@ -46,7 +46,8 @@ class Admin
             $adminData = $statement->fetch(PDO::FETCH_ASSOC);
 
             if ($adminData) {
-                return new Admin($adminData['id'], $adminData['emailid'], $adminData['password']);
+               return new Admin($adminData['id'], $adminData['emailid'], $adminData['password']);
+           
             } else {
                 return null; // Admin not found
             }
