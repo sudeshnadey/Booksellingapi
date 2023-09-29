@@ -14,7 +14,7 @@ require_once './config/db-connect.php';
         if ($cate_id) {
 
 
-            $query = "SELECT id,title,description,created_at,added_by,photo as image FROM news WHERE category_id = :categoryId AND lang=:lang ORDER BY created_at DESC ";
+            $query = "SELECT id,title,description,created_at,added_by,photo as image,lang FROM news WHERE category_id = :categoryId AND lang=:lang ORDER BY created_at DESC ";
 
             $statement = $pdo->prepare($query);
             $statement->bindParam(':categoryId', $cate_id);
@@ -25,7 +25,6 @@ require_once './config/db-connect.php';
             $fbooks = array_map(function ($data) use ($pdo) {
      
                 $data['image'] = !empty($data['image']) ? imageUrl().$data['image'] : null;
-                $data['comments'] = [];
 
                 return $data;
             }, $books);

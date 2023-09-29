@@ -88,6 +88,30 @@ class User
         }
     }
 
+    public static function updateUser($name, $email, $phone,$id, $photo = null)
+    {
+        try {
+            $pdoConnection = createDatabaseConnection();
+    
+            $query = "UPDATE users SET name=:name, email=:email, phone=:phone";
+            $parameters = [':name' => $name, ':email' => $email, ':phone' => $phone];
+    
+            if ($photo !== null) {
+                $query .= ", photo=:photo";
+                $parameters[':photo'] = $photo;
+            }
+    
+            $query .= " WHERE id=:id";
+            $parameters[':id'] = $id;
+    
+            $statement = $pdoConnection->prepare($query);
+            $statement->execute($parameters);
+    
+            return true;
+        } catch (PDOException $e) {
+            return $e;
+        }
+    }
     public static function getAll($pdo)
     {
         $query = "SELECT * FROM users";

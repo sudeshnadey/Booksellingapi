@@ -29,19 +29,17 @@ require_once './config/db-connect.php';
                 $categories[$categoryId] = [
                     'category_id' => $row['category_id'],
                     'category_name' => $row['category_name'],
-                    'image' =>  $row['category_image'] ? imageUrl() . $row['category_image'] : null,
                     'news' => []
                 ];
             }
 
      
             if (isset($row['news_id'])  && count($categories[$categoryId]['news']) < 5) {
-                $categories[$categoryId]['books'][] = [
+                $categories[$categoryId]['news'][] = [
                     'news_id' => $row['news_id'],
                     'title' => $row['title'],
                     'description' => $row['description']??null,
-                    'image' => $row['news_image'] ?? null,
-                    'comments' => []
+                    'image' =>  $row['news_image'] ? imageUrl() . $row['news_image'] : null,
 
                     // Add any other book properties you want to include
                 ];

@@ -19,17 +19,28 @@ $userId = getUser()->id;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = $_POST;
-
     $user_id = $userId;
     $item_id = $data['item_id'];
     $type = $data['type'];
-
-    $sql = "INSERT INTO wishlist (user_id, item_id, type) VALUES (?, ?, ?)";
-
+    
+    // Check if the item already exists in the wishlist for the user
+    $checkSql = "SELECT COUNT(*) FROM wishlist WHERE user_id = ? AND item_id = ?";
+    $checkStmt = $pdo->prepare($checkSql);
+    $checkStmt->execute([$user_id, $item_id]);
+    $count = $checkStmt->fetchColumn();
+    
+    if ($count > 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Item already exists in wishlist']);
+        exit();
+    }
+    
+    $insertSql = "INSERT INTO wishlist (user_id, item_id, type) VALUES (?, ?, ?)";
+    
     try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$user_id, $item_id, $type]);
-
+        $insertStmt = $pdo->prepare($insertSql);
+        $insertStmt->execute([$user_id, $item_id, $type]);
+    
         http_response_code(201);
         echo json_encode(['message' => 'Wishlist item created successfully']);
         exit();

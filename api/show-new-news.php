@@ -11,8 +11,8 @@ require_once './config/db-connect.php';
 
  
 
-$query = "SELECT  c.id as category_id,c.name as category_name,c.image as category_image,
-b.photo as news_image, b.id as
+$query = "SELECT  c.id as category_id,c.name as category_name,
+b.photo as image, b.id as
  news_id,b.title as title,b.description  FROM categories c LEFT JOIN news b 
  ON c.id = b.category_id WHERE b.lang=:lang  ORDER BY b.created_at DESC";
     $filt = $_GET['filter'] ?? '';
@@ -31,8 +31,7 @@ b.photo as news_image, b.id as
     $fbooks = array_map(function ($data) use ($pdo) {
     
 
-        $data['image'] = !empty($data['news_image']) ? imageUrl().$data['news_image'] : null;
-        $data['comments'] = [];
+        $data['image'] = !empty($data['image']) ? imageUrl().$data['image'] : null;
 
         return $data;
     }, $results);

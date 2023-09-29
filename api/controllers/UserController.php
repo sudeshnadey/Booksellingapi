@@ -2,8 +2,11 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 include('./models/User.php');
+include './require/login-user.php';
+include './require/url.php';
 
 use Firebase\JWT\JWT;
+use Ramsey\Uuid\Uuid;
 
 class UserController
 {
@@ -44,7 +47,7 @@ class UserController
                     
                         $user2 = $stmt->fetch(PDO::FETCH_ASSOC);
                         unset($user2['password']);
-                     
+                         $user2['photo']=$user2['photo']?imageUrl().$user2['photo']:null;
                
                         // Return the JWT token
                         echo json_encode(['token' => $jwt, 'user' => $user2]);
@@ -98,6 +101,49 @@ class UserController
             return ['success' => true, 'message' => 'User registered successfully.'];
         } else {
             return ['success' => false, 'message' => 'Failed to register user.'];
+        }
+    }
+    public function editUser()
+    {
+        // Retrieve the JSON data from the request body
+        $data = $_POST;
+
+        // Decode the JSON data
+        // $data = json_decode($jsonData, true);
+        $data['id']=getUser()->id??'';
+
+        // Validate the required fields
+
+        if (empty($data['id'])) {
+            http_response_code(400);
+            return ['success' => false, 'message' => 'Un Authorized.'];
+        }
+        if (empty($data['name'])  || empty($data['email']) || empty($data['phone'])) {
+            http_response_code(400);
+
+            return ['success' => false, 'message' => 'Missing required fields.'];
+        }
+
+        $photo = $_FILES['photo']??'';
+
+        $fileName=null;
+        if (!empty($photo)) {
+            $originalFileName = $photo['name'];
+            $fileExtension = pathinfo($originalFileName, PATHINFO_EXTENSION);
+            
+            $fileName = Uuid::uuid4()->toString() . '.' . $fileExtension;
+            $fileTmpPath = $photo['tmp_name'];
+            $destination = 'images/' . $fileName;
+            move_uploaded_file($fileTmpPath, $destination);
+
+        }
+        $user = User::updateUser($data['name'],$data['email'], $data['phone'],$data['id'], $fileName);
+
+        if ($user) {
+            return ['success' => true, 'message' => 'Profile Updated successfully.'.$user];
+        } else {
+            http_response_code(400);
+            return ['success' => false, 'message' => 'Failed to update user.'.$user];
         }
     }
 }
